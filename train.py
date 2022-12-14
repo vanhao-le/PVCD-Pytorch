@@ -85,7 +85,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     model_lst = ['TRN', 'MultiScaleTRN']
-    model_type = model_lst[1]
+    model_type = model_lst[0]
 
     img_feature_dim =  config.img_feature_dim
     d_frames = config.d_frames
@@ -117,6 +117,7 @@ def main():
     loss = loss + weight decay parameter * L2 norm of the weights
     '''
     weight_decay = config.weight_decay
+    step_size = config.step_size
 
     optimizer = optim.SGD(model.parameters(), lr=learning_rate,  momentum = momentum, weight_decay= weight_decay)
     '''
@@ -124,7 +125,7 @@ def main():
     step_size (int): Period of learning rate decay. It is equivalent to the number of epochs.
     gamma (float): Multiplicative factor of learning rate decay. Default: 0.1 (ten times).
     '''
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
     model, log = train_model(model, criterion, optimizer, exp_lr_scheduler, dataloaders, dataset_sizes, device, num_epochs=num_epochs)
     
     df=pd.DataFrame({'epoch':[],'training_loss':[],'training_acc':[],'val_loss':[],'val_acc':[]})

@@ -1,9 +1,9 @@
 import os
 import threading
 
-NUM_THREADS = 10
-VIDEO_ROOT = r'data\ucf101\videos\test\\'   # Directory for videos
-FRAME_ROOT = r'data\ucf101\frames\test\\'  # Directory for extracted frames
+NUM_THREADS = 20
+VIDEO_ROOT = r'data\ucf5\videos\test'   # Directory for videos
+FRAME_ROOT = r'data\ucf5\frames\test'  # Directory for extracted frames
 
 
 def split(l, n):
@@ -12,14 +12,16 @@ def split(l, n):
         yield l[i:i + n]
 
 
-def extract(video, tmpl='%06d.jpg'):
+def extract(video, tmpl='%05d.jpg'):
     os.system(f'ffmpeg -i {VIDEO_ROOT}/{video} -vf scale=256:256 ' f'{FRAME_ROOT}/{video[:-4]}/{tmpl}')
 
 
 def target(video_list):
     # video[:-4] means substract .avi
     for video in video_list:
-        os.makedirs(os.path.join(FRAME_ROOT, video[:-4]))
+        video_path = os.path.join(FRAME_ROOT, video[:-4])
+        if not os.path.exists(video_path):
+            os.makedirs(video_path)
         extract(video)
 
 
