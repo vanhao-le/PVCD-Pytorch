@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 from chip.train_model import train_model
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+# os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def main():
     train_path = config.file_imglist_train
@@ -85,7 +85,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     model_lst = ['TRN', 'MultiScaleTRN']
-    model_type = model_lst[0]
+    model_type = model_lst[1]
 
     img_feature_dim =  config.img_feature_dim
     d_frames = config.d_frames
@@ -98,10 +98,18 @@ def main():
     else:
         raise("Invalid Model Type")
     
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = nn.DataParallel(model)
+
+    # setting device on GPU if available, else CPU
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Using device:', device)
+    num_of_gpus = torch.cuda.device_count()
+    print("Number of GPUs: ", num_of_gpus)  
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+    
     model = model.to(device)
-    print(model)
+    # print(model)
 
     num_epochs = config.num_epochs
     learning_rate = config.learning_rate

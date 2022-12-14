@@ -118,7 +118,7 @@ class RelationModuleMultiScale(nn.Module):
         for scaleID in range(1, len(self.scales)):
             # iterate over the scales
             idx_relations_randomsample = np.random.choice(len(self.relations_scales[scaleID]), self.subsample_scales[scaleID], replace=False)
-            print('Scales %d:'%self.scales[scaleID], idx_relations_randomsample)
+            # print('Scales %d:'%self.scales[scaleID], idx_relations_randomsample)
             for idx in idx_relations_randomsample:
                 act_relation = input[:, self.relations_scales[scaleID][idx], :]
                 act_relation = act_relation.view(act_relation.size(0), self.scales[scaleID] * self.img_feature_dim)

@@ -10,19 +10,19 @@ prefix = '{:06d}.jpg'
 store_name = "models"
 
 # ========================= Model Configs ==========================
-num_segments = 30
-d_frames = 2
+num_segments = 25
+d_frames = 8
 k_random = 3
 num_classes = 5
 
 # ========================= Learning Configs ==========================
-batch_size = 16
+batch_size = 5
 num_workers = 2
 learning_rate = 1e-3
 momentum = 0.9
 weight_decay = 5e-4
 step_size = 20
-num_epochs = 50
+num_epochs = 10
 dropout = 0.8
 img_feature_dim = 2048 #the feature dimension for each frame
 
