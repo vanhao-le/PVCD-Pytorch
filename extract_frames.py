@@ -2,8 +2,9 @@ import os
 import threading
 
 NUM_THREADS = 30
-VIDEO_ROOT = r'data\ucf5\videos\train'   # Directory for videos
-FRAME_ROOT = r'data\ucf5\frames\train'  # Directory for extracted frames
+# VIDEO_ROOT = r'data\ucf5\videos\train'   # Directory for videos
+VIDEO_ROOT = r'D:\vcdb_split\test'   # Directory for videos
+FRAME_ROOT = r'data\vcdb\test'  # Directory for extracted frames
 
 
 def split(l, n):

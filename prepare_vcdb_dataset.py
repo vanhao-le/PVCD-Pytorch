@@ -1,6 +1,12 @@
 import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
+import shutil
+import torch
+import torch.utils.data as data
+from PIL import Image
+import numpy as np
+from numpy.random import randint
 
 
 '''
@@ -61,7 +67,38 @@ def split_train_val_test(root_path, data_file):
     test_ds.to_csv(test_file, columns=['video_name', 'classIDx'], index=False, header=True, encoding="utf-8-sig")
 
 
+def copy_video():
 
+    train_file = r'data\vcdb\train.csv'
+    val_file =  r'data\vcdb\val.csv'
+    test_file =  r'data\vcdb\test.csv'
+
+    df_train = pd.read_csv(train_file)
+    df_val = pd.read_csv(val_file)
+    df_test = pd.read_csv(test_file)
+
+    original_path = r'D:\pvcd_core' 
+    train_path = r'D:\vcdb_split\train'
+    val_path = r'D:\vcdb_split\val'
+    test_path = r'D:\vcdb_split\test'
+
+    for item in df_train.itertuples():
+        video_file = item.video_name
+        old_path = os.path.join(original_path, video_file)
+        new_path = os.path.join(train_path, video_file)
+        shutil.copyfile(old_path, new_path)
+    
+    for item in df_val.itertuples():
+        video_file = item.video_name
+        old_path = os.path.join(original_path, video_file)
+        new_path = os.path.join(val_path, video_file)
+        shutil.copyfile(old_path, new_path)
+    
+    for item in df_test.itertuples():
+        video_file = item.video_name
+        old_path = os.path.join(original_path, video_file)
+        new_path = os.path.join(test_path, video_file)
+        shutil.copyfile(old_path, new_path)
 
 def main():
     '''
@@ -76,10 +113,19 @@ def main():
     root_path = r'data\vcdb'
     data_file = r'data.csv'
 
-    split_train_val_test(root_path, data_file)
+    # split_train_val_test(root_path, data_file)
+
+    '''
+    Copy videos to  train / val / test folders
+    '''
+
+    # copy_video()
 
     print()
 
 if __name__ == '__main__':
     main()
-    
+
+
+
+

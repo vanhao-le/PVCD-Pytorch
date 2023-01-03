@@ -77,6 +77,17 @@ def load_frames(frames, num_frames=8):
 
 buffer_frames = []
 def main():
+
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    m = torch.nn.Linear(20, 30).to(DEVICE)
+    input = torch.randn(128, 20).to(DEVICE)
+    output = m(input)
+    print('output', output.size())
+    exit()
+
+
+
     num_segs = 8
     N = 10
     i = 0

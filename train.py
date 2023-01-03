@@ -13,8 +13,7 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 
 from model.TRN import MultiScaleTRN, TRN
-
-from create_dataset import TSNDataSet
+from create_dataset import VCDBDataset, TSNDataSet
 from transforms import *
 import chip.config as config
 
@@ -50,15 +49,21 @@ def main():
         ]),
     }
     
-    train_dataset = TSNDataSet(data_dir=train_path, annotation_dir = filename_train, 
-        file_categories=file_categories, num_segments= num_segments, transform=data_transforms['train'])       
+    # train_dataset = TSNDataSet(data_dir=train_path, annotation_dir = filename_train, 
+    #     file_categories=file_categories, num_segments= num_segments, transform=data_transforms['train'])
+    
+    train_dataset = VCDBDataset(data_dir=train_path, annotation_dir = filename_train, 
+        file_categories=file_categories, num_segments= num_segments, transform=data_transforms['train'])
 
     train_loader = DataLoader(train_dataset, 
         batch_size= config.batch_size, shuffle=True, num_workers = config.num_workers
     )
 
-    val_dataset = TSNDataSet(data_dir=val_path, annotation_dir = filename_val, 
-        file_categories=file_categories, num_segments= num_segments, transform=data_transforms['val'])       
+    # val_dataset = TSNDataSet(data_dir=val_path, annotation_dir = filename_val, 
+    #     file_categories=file_categories, num_segments= num_segments, transform=data_transforms['val'])
+
+    val_dataset = VCDBDataset(data_dir=val_path, annotation_dir = filename_val, 
+        file_categories=file_categories, num_segments= num_segments, transform=data_transforms['val'])
 
     val_loader = DataLoader(val_dataset, 
         batch_size= config.batch_size, shuffle=False, num_workers = config.num_workers
@@ -67,10 +72,11 @@ def main():
     dataloaders= {'train': train_loader, 'val': val_loader}
     dataset_sizes = {'train': len(train_loader.dataset), 'val': len(val_loader.dataset)}
 
-    # Display image and label.
-    # train_features, train_labels = next(iter(train_loader))
-    # print(f"Feature batch shape: {train_features.size()}")
-    # print(f"Labels batch shape: {train_labels.size()}")
+    # Display image and label
+
+    train_features, train_labels = next(iter(train_loader))
+    print(f"Feature batch shape: {train_features.size()}")
+    print(f"Labels batch shape: {train_labels.size()}")
 
 
     # images = train_features[0].squeeze()

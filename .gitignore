@@ -2,6 +2,7 @@ data/ucf5/train/*
 data/ucf5/test/*
 output/*
 data/ucf101/*
+data/vcdb/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
