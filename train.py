@@ -29,6 +29,7 @@ def main():
     filename_train = config.filename_imglist_train
     val_path  = config.file_imglist_test
     filename_val = config.filename_imglist_val
+    image_size = config.image_size
 
     num_segments = config.num_segments
     prefix = config.prefix
@@ -37,13 +38,13 @@ def main():
     # Data augmentation
     data_transforms = {
         'train': transforms.Compose([
-            transforms.Resize((224,224)),
+            transforms.Resize((image_size,image_size)),
             transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ]),
         'val': transforms.Compose([
-            transforms.Resize((224,224)),
+            transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
@@ -146,6 +147,18 @@ def main():
 
     model_save_filename = r'output\best_model.pth'
     torch.save(model.state_dict(), model_save_filename)
+    '''
+    Saving model
+    In PyTorch, the learnable parameters (i.e. weights and biases) of an torch.nn.Module model are contained in the model's parameters 
+    (accessed with model.parameters()). A state_dict is simply a Python dictionary object that maps each layer to its parameter tensor. 
+    Note that only layers with learnable parameters (convolutional layers, linear layers, etc.) and 
+    registered buffers (batchnorm's running_mean) have entries in the model’s state_dict.
+    Optimizer objects (torch.optim) also have a state_dict, which contains information about the optimizer's state, 
+    as well as the hyperparameters used.
+
+    Because state_dict objects are Python dictionaries, they can be easily saved, updated, altered, and restored, 
+    adding a great deal of modularity to PyTorch models and optimizers.
+    '''
  
 
     return

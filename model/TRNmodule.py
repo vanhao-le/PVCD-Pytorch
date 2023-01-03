@@ -94,7 +94,7 @@ class RelationModuleMultiScale(nn.Module):
 
             self.fc_fusion_scales += [fc_fusion]
 
-        print('Multi-Scale Temporal Relation Network Module in use', ['%d-frame relation' % i for i in self.scales])
+        # print('Multi-Scale Temporal Relation Network Module in use', ['%d-frame relation' % i for i in self.scales])
 
     def forward(self, input):        
         '''

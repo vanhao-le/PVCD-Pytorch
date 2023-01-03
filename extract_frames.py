@@ -13,6 +13,9 @@ def split(l, n):
 
 
 def extract(video, tmpl='%05d.jpg'):
+    '''
+    video[-4]: to get the name of video without .avi
+    '''
     os.system(f'ffmpeg -i {VIDEO_ROOT}/{video} -vf scale=256:256 ' f'{FRAME_ROOT}/{video[:-4]}/{tmpl}')
 
 

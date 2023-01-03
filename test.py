@@ -18,17 +18,19 @@ import numpy as np
 
 # print(image_lst.shape)
 # print(input_data.shape)
+# num_frames = 8
+# for i in range(num_frames):
+#     print(i)
 
+# import itertools
+# num_frames = 8
+# num_segments = 30
+# scales = [i for i in range(num_frames, 1, -1)]
 
-import itertools
-num_frames = 8
-num_segments = 30
-scales = [i for i in range(num_frames, 1, -1)]
-
-outputs = torch.rand((3, 5))
-_, preds = torch.max(outputs, dim = 1)
-print(outputs)
-print("Max:", preds)
+# outputs = torch.rand((3, 5))
+# _, preds = torch.max(outputs, dim = 1)
+# print(outputs)
+# print("Max:", preds)
 
 
 # print(scales)
@@ -56,3 +58,51 @@ print("Max:", preds)
     
 #     if scaleID >= 1:
 #         break
+
+import torch
+import torchvision.transforms as transforms
+from torch.autograd import Variable
+
+
+transform = transforms.Compose([      
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+def load_frames(frames, num_frames=8):
+    if len(frames) >= num_frames:
+        return frames[::int(np.ceil(len(frames) / float(num_frames)))]
+    else:
+        raise (ValueError('Video must have at least {} frames'.format(num_frames)))
+
+buffer_frames = []
+def main():
+    num_segs = 8
+    N = 10
+    i = 0
+    input_bill = torch.rand((3,224,224))
+    buffer_frames.append(input_bill)
+    input_bill = torch.rand((3,224,224))
+    buffer_frames.append(input_bill)
+    data = buffer_frames[1:]
+    print("Queue shape: ", torch.as_tensor(data).shape)
+
+    # while(i <= N):
+    #     input_bill = torch.rand((3,224,224))
+    #     if len(buffer_frames) < num_segs:
+    #         buffer_frames.append(input_bill)
+    #     else:           
+    #         lstt = torch.stack(buffer_frames)
+    #         print("Queue shape: ", lstt.size())
+    #         buffer_frames[:-1] = buffer_frames[1:]
+    #         buffer_frames[-1] = input_bill
+    #     i+=1
+
+    
+if __name__ == '__main__':
+
+    main()
+    
+
+# input_bill = Variable(data.view(-1, 3, data.size(1), data.size(2)).unsqueeze(0).cuda(), volatile=True)
+
