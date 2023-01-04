@@ -57,7 +57,8 @@ img_feature_dim = 2048
 ## Result
 
 
-![The VCDB results](output/vcdb.png)
+![The VCDB results](output/acc.png)
+![The VCDB results](output/loss.png)
 
 # SVD - Dataset
 
