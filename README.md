@@ -31,7 +31,9 @@ The frames of all videos are extracted by using FFmpeg library. Thus, a video co
 
 ## Training
 
-We have trained the network with the following paramters:
+The image features was extracted from the pre-trained ResNet50 (2048-D) model.
+
+We have trained the TRN network with the following paramters:
 
 num_segments=30,
 d_frames=8,
