@@ -97,11 +97,12 @@ def main():
     img_feature_dim =  config.img_feature_dim
     d_frames = config.d_frames
     num_classes = config.num_classes
+    k_random = config.k_random
 
     if(model_type == 'TRN'):
         model = TRN(img_feature_dim, d_frames, num_segments, num_classes)
     elif(model_type == 'MultiScaleTRN'):
-        model = MultiScaleTRN(img_feature_dim, d_frames, num_segments, num_classes)    
+        model = MultiScaleTRN(img_feature_dim, d_frames, num_segments, k_random, num_classes)    
     else:
         raise("Invalid Model Type")
     

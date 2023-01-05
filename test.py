@@ -1,119 +1,109 @@
+import imutils
+import cv2
+import pandas as pd
 import torch
-import numpy as np
-
-# img_i = torch.rand(1,3,224,224)
-# img_j = torch.rand(1,3,224,224)
-
-# img = list()
-
-# img.extend(img_i)
-# img.extend(img_j)
-
-
-# image_lst = torch.stack(img)
-
-# N, T, C, H, W = image_lst.shape[:5]
-
-# input_data = image_lst.reshape(-1, C, H, W)
-
-# print(image_lst.shape)
-# print(input_data.shape)
-# num_frames = 8
-# for i in range(num_frames):
-#     print(i)
-
-# import itertools
-# num_frames = 8
-# num_segments = 30
-# scales = [i for i in range(num_frames, 1, -1)]
-
-# outputs = torch.rand((3, 5))
-# _, preds = torch.max(outputs, dim = 1)
-# print(outputs)
-# print("Max:", preds)
-
-
-# print(scales)
-# for scaleID in range(0, len(scales)):
-#     print(scaleID, '----',scales[scaleID])
-
-# print(x)
-
-# generate the multiple relation scales
-# x = list()
-# for item in scales:
-#     num_frames_relation = item
-#     tmp = list(itertools.combinations(range(num_segments), num_frames_relation))
-#     print('Scale %d'%item, len(tmp))
-    # print(f"Loop {item}:", x)
-
-
-
-# for scaleID in range(1, len(scales)):
-#     print(x[scaleID])
-#     idx_relations_randomsample = np.random.choice(len(x[scaleID]), 3, replace=False)
-#     print('Scale %d'%scales[scaleID], idx_relations_randomsample)
-#     for idx in idx_relations_randomsample:
-#         print("Sample tupe:", x[scaleID][idx])
-    
-#     if scaleID >= 1:
-#         break
-
-import torch
-import torchvision.transforms as transforms
+from torchvision import transforms, models, datasets
 from torch.autograd import Variable
+from model.TRN import TRN, MultiScaleTRN
+import numpy as np
+import os
+from PIL import Image
+import chip.config as config
+from torch.nn import functional as F
+import torch.nn as nn
 
 
-transform = transforms.Compose([      
+LABELS_DIR = r'data\vcdb\category.csv'
+
+num_frames = config.d_frames
+num_segs = config.num_segments
+k_random = config.k_random
+num_class = config.num_classes
+img_feature_dim = config.img_feature_dim
+image_size = config.image_size
+
+transform = transforms.Compose([
+    transforms.Resize((image_size, image_size)),     
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-def load_frames(frames, num_frames=8):
-    if len(frames) >= num_frames:
-        return frames[::int(np.ceil(len(frames) / float(num_frames)))]
-    else:
-        raise (ValueError('Video must have at least {} frames'.format(num_frames)))
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cpu")
+model = MultiScaleTRN(img_feature_dim, num_frames, num_segs, k_random, num_class)
+state_dict = torch.load(r'output\vcdb_model.pth')
 
-buffer_frames = []
-def main():
+model.load_state_dict(state_dict, strict=False)
+# load the model and set it to evaluation mode
+model.eval()
+# model = nn.DataParallel(model)
+model.to(DEVICE)
 
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def load_image_data(data_path):
+    image_path_list = os.listdir(data_path)
+    frames_num = len(image_path_list)
+    image_list = list()
 
-    m = torch.nn.Linear(20, 30).to(DEVICE)
-    input = torch.randn(128, 20).to(DEVICE)
-    output = m(input)
-    print('output', output.size())
-    exit()
+    # numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0)
+    # Returns num evenly spaced samples, calculated over the interval [start, stop].
+    # Ouput: samples, step -> put dim=0 is to get only samples
+    sample = np.linspace(0, frames_num-1, num_segs, endpoint=True, retstep=True, dtype=int)[0]
+    for i in sample:
+        img_path = os.path.join(data_path, image_path_list[i])
+        img = Image.open(img_path)
+        img = transform(img)
+        image_list.append(img)
+    image = torch.stack(image_list)
+    return image
 
+ 
+'''
+Predict the extracted frames
+'''
+if __name__ == '__main__':    
 
+    # Load class names
+    df = pd.read_csv(LABELS_DIR)
+    classes = df['classIDx'].values.tolist()
 
-    num_segs = 8
-    N = 10
-    i = 0
-    input_bill = torch.rand((3,224,224))
-    buffer_frames.append(input_bill)
-    input_bill = torch.rand((3,224,224))
-    buffer_frames.append(input_bill)
-    data = buffer_frames[1:]
-    print("Queue shape: ", torch.as_tensor(data).shape)
+    test_file = r'data\vcdb\test.csv'
+    test_df = pd.read_csv(test_file)
+    ROOT_PATH = r'data\vcdb\test'
 
-    # while(i <= N):
-    #     input_bill = torch.rand((3,224,224))
-    #     if len(buffer_frames) < num_segs:
-    #         buffer_frames.append(input_bill)
-    #     else:           
-    #         lstt = torch.stack(buffer_frames)
-    #         print("Queue shape: ", lstt.size())
-    #         buffer_frames[:-1] = buffer_frames[1:]
-    #         buffer_frames[-1] = input_bill
-    #     i+=1
+    '''
+    test model with extracted frames
+    '''
+    rows, cols = test_df.shape
+    total_video = rows
+    correct_nums = 0
 
+    for item in test_df.itertuples():
+        video_name = item.video_name.split('.')[0]        
+        gt_label = item.classIDx
+        DATA_DIR = os.path.join(ROOT_PATH, video_name)
+        # Tensor [num_segments, num_channel, width, heigth]
+        dummy_input = load_image_data(DATA_DIR)
+
+        # add batch_size dimension
+        # Tensor [batch_size, num_segments, num_channel, width, heigth]
+        dummy_input = torch.unsqueeze(dummy_input, dim=0).cuda()
+        outputs = model(dummy_input)
     
-if __name__ == '__main__':
+        # find the class label index with the maximum probability
+        class_prob = F.softmax(outputs, dim=1)
+    
+        # get most probable class and its probability:
+        scores, idX = torch.max(class_prob, dim=1)
+        # get class names    
+        scores = scores.cpu().detach().numpy()[0]
+        pred_label = classes[idX]
 
-    main()
+        if(pred_label == gt_label):
+            correct_nums += 1
+
+        print("[INFO] groundtruth: {}, predicted label: {}, scores: {:.4f}".format(gt_label, pred_label, scores))
+    
+    print("[INFO] total videos: {}, correct: {:.4f}".format(total_video, correct_nums))
     
 
-# input_bill = Variable(data.view(-1, 3, data.size(1), data.size(2)).unsqueeze(0).cuda(), volatile=True)
 

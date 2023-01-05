@@ -62,14 +62,15 @@ class TRN(nn.Module):
 
 
 class MultiScaleTRN(nn.Module):
-    def __init__(self, img_feature_dim, d_frames, num_segs, num_class):
+    def __init__(self, img_feature_dim, d_frames, num_segs, k_random, num_class):
         super(MultiScaleTRN, self).__init__()
         self.num_class = num_class
         self.d_frames = d_frames
+        self.k_random = k_random
         self.img_feature_dim = img_feature_dim
         self.backbone = resnet50(pretrained=True)
         self.merge = MergeFrame()
-        self.TRN = RelationModuleMultiScale(img_feature_dim, d_frames, num_segs, num_class)        
+        self.TRN = RelationModuleMultiScale(img_feature_dim, d_frames, num_segs, k_random, num_class)        
     
     def forward(self, x):
         total_frame = x.shape[1]

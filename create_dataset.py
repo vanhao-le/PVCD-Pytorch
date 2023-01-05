@@ -110,7 +110,10 @@ class VCDBDataset(data.Dataset):
     def _sample(self, num_total, num_segments):
         # sample = np.random.choice(range(num_total), size=num_segs, replace=None)
         # sample = np.sort(sample, axis=-1, kind='quicksort', order=None)
-        sample = np.linspace(0, num_total-1, num_segments, endpoint=True, retstep=True, dtype=int)[0]       
+        # numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0)
+        # Returns num evenly spaced samples, calculated over the interval [start, stop].
+        # Ouput: samples, step -> put dim=0 is to get only samples
+        sample = np.linspace(0, num_total-1, num_segments, endpoint=True, retstep=True, dtype=int)[0]
         return sample
 
     def __len__(self):

@@ -12,13 +12,15 @@ import os
 from PIL import Image
 import chip.config as config
 from torch.nn import functional as F
+import torch.nn as nn
 
 
 
-LABELS_DIR = r'data\ucf5\category.txt'
+# LABELS_DIR = r'data\ucf5\category.txt'
 
 num_frames = config.d_frames
 num_segs = config.num_segments
+k_random = config.k_random
 num_class = config.num_classes
 img_feature_dim = config.img_feature_dim
 image_size = config.image_size
@@ -29,15 +31,15 @@ transform = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # DEVICE = torch.device("cpu")
-model = MultiScaleTRN(img_feature_dim, num_frames, num_segs, num_class)
-state_dict = torch.load(r'output\best_model.pth')
+model = MultiScaleTRN(img_feature_dim, num_frames, num_segs, k_random, num_class)
+state_dict = torch.load(r'output\vcdb_model.pth')
 
 model.load_state_dict(state_dict, strict=False)
 # load the model and set it to evaluation mode
 model.eval()
-
+# model = nn.DataParallel(model)
 model.to(DEVICE)
 
 def load_image_data(data_path):
@@ -99,16 +101,21 @@ load video
 '''
 def video_demo():
     # Load class names
-    classes = list(np.loadtxt(LABELS_DIR, dtype=np.str_, delimiter=' '))
+    # classes = list(np.loadtxt(LABELS_DIR, dtype=np.str_, delimiter=' '))
+
+    # Load class names
+    LABELS_DIR = r'data\vcdb\category.csv'
+    df = pd.read_csv(LABELS_DIR)
+    classes = df['classIDx'].values.tolist()
 
     # created a *threaded *video stream, allow the camera senor to warmup,
     # and start the FPS counter
     print("[INFO] sampling THREADED frames from video...")
     
     # load video
-    ROOT_PATH = r'D:\PhD_Program\Deep-Learning\Datasets\ucf101_top5\test'
-    Video_name = 'v_TennisSwing_g06_c02.avi'
-    DATA_DIR = os.path.join(ROOT_PATH, Video_name)
+    ROOT_PATH = r'D:\pvcd_core'
+    video_name = '15-9.mp4'
+    DATA_DIR = os.path.join(ROOT_PATH, video_name)
 
     vs = FileVideoStream(path=DATA_DIR).start()
     fps = FPS().start()
@@ -123,8 +130,7 @@ def video_demo():
         # to have a maximum width of 400 pixels
         frame = vs.read()
 
-        view_frame = put_lable(frame, pred_label)
-        
+        view_frame = put_lable(frame, pred_label)        
 
         # if the frame was not grabbed, then we have reached the end
         if frame is None:
@@ -171,7 +177,7 @@ def video_demo():
                 # scores = probs[0].cpu().detach().numpy()
 
                 scores = probs.cpu().detach().numpy()[0]
-                pred_label = classes[idx]
+                pred_label = str(classes[idx])
                 # print("[INFO] predicted label: {}, scores: {:.4f}".format(pred_label, scores))
 
                 if (scores > best_score):

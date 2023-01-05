@@ -22,7 +22,6 @@ filename_imglist_train = r"data\vcdb\train.csv"
 filename_imglist_val = r"data\vcdb\val.csv"
 
 prefix = '{:06d}.jpg'
-store_name = "models"
 
 # ========================= Model Configs ==========================
 num_segments = 30

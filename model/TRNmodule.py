@@ -54,11 +54,11 @@ class RelationModuleMultiScale(nn.Module):
     '''
     # Temporal Relation module in multiply scale, suming over [2-frame relation, 3-frame relation, ..., n-frame relation]
 
-    def __init__(self, img_feature_dim, d_frames, num_segments, num_class):
+    def __init__(self, img_feature_dim, d_frames, num_segments, k_random, num_class):
         super(RelationModuleMultiScale, self).__init__()
 
         # subsample_num:  The parameter k mentioned in the paper.
-        self.subsample_num = 3   # how many relations selected to sum up
+        self.subsample_num = k_random  # how many relations selected to sum up
         self.num_segments = num_segments
         self.img_feature_dim = img_feature_dim
         # range(d_frames, 1, -1) where d_frames = 8 -> [8, 7, 6, ..., 2]
