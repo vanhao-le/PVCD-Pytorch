@@ -1,5 +1,7 @@
 # PVCD-Pytorch
-This repo includes the implementations of the Neural Networks for partial video copy detection. 
+This repo includes the implementations of the Neural Networks for partial video copy detection.
+
+[1] Temporal Relational Reasoning Network: http://relation.csail.mit.edu/ 
 
 # Model input
 
